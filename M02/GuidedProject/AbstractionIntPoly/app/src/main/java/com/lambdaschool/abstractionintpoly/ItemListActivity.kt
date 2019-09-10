@@ -16,6 +16,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.lambdaschool.abstractionintpoly.model.Person
+import com.lambdaschool.abstractionintpoly.model.Starship
 import com.lambdaschool.abstractionintpoly.model.SwApiObject
 import com.lambdaschool.abstractionintpoly.retrofit.StarWarsAPI
 import kotlinx.android.synthetic.main.activity_item_list.*
@@ -33,7 +35,11 @@ import retrofit2.Response
  * item details. On tablets, the activity presents the list of items and
  * item details side-by-side using two vertical panes.
  */
-class ItemListActivity : AppCompatActivity() {
+class ItemListActivity : AppCompatActivity(), ItemDetailFragment.DetailResponse {
+
+    override fun provideInfoForObject(info: String) {
+        Toast.makeText(this, "We got info from detail:\n$info", Toast.LENGTH_LONG).show()
+    }
 
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
@@ -69,6 +75,7 @@ class ItemListActivity : AppCompatActivity() {
     }
 
     // TODO 6: S05M02-6 pull out fields from recyclerview construction and call our method
+    //all done, grok this later to learn
     private fun setupRecyclerView(recyclerView: RecyclerView) {
         viewAdapter = SimpleItemRecyclerViewAdapter(this, swApiObjects, twoPane)
         recyclerView.adapter = viewAdapter
@@ -85,8 +92,64 @@ class ItemListActivity : AppCompatActivity() {
     private fun getData() {
 
         // Add people
+        val personIds = mutableListOf(1, 2, 3, 4, 5, 6)
+        //personIds.shuffle()
+        personIds.forEach {
+            getPerson(it)
+        }
 
         // Add starships
+        val starshipIds = mutableListOf(15, 5, 12, 13, 23, 10)
+        //personIds.shuffle()
+        starshipIds.forEach {
+            getStarship(it)
+        }
+    }
+
+    fun getPerson(id: Int) {
+        starWarsAPI.getPerson(id).enqueue(object : Callback<Person> {
+
+            override fun onFailure(call: Call<Person>, t: Throwable) {
+                progressBar.visibility = View.GONE
+                //View.GONE ignores that view in layout calculations, View.INVISIBLE still keeps the space
+            }
+
+            override fun onResponse(call: Call<Person>, response: Response<Person>) {
+                progressBar.visibility = View.GONE
+                if (response.isSuccessful) {
+                    val person = response.body()
+                    person?.let {
+                        it.id = id
+                        it.category = DrawableResolver.CHARACTER
+                        swApiObjects.add(person)
+                        viewAdapter?.notifyItemInserted(swApiObjects.size - 1)
+                    }
+                }
+            }
+        })
+    }
+
+    fun getStarship(id: Int) {
+        starWarsAPI.getStarship(id).enqueue(object : Callback<Starship> {
+
+            override fun onFailure(call: Call<Starship>, t: Throwable) {
+                progressBar.visibility = View.GONE
+                //View.GONE ignores that view in layout calculations, View.INVISIBLE still keeps the space
+            }
+
+            override fun onResponse(call: Call<Starship>, response: Response<Starship>) {
+                progressBar.visibility = View.GONE
+                if (response.isSuccessful) {
+                    val starship = response.body()
+                    starship?.let {
+                        it.id = id
+                        it.category = DrawableResolver.CHARACTER
+                        swApiObjects.add(starship)
+                        viewAdapter?.notifyItemInserted(swApiObjects.size - 1)
+                    }
+                }
+            }
+        })
     }
 
     class SimpleItemRecyclerViewAdapter(
@@ -139,8 +202,16 @@ class ItemListActivity : AppCompatActivity() {
             val swApiObject = values[position]
 
             // TODO 8: S05M02-8 convert id to string to display
+            holder.idView.text = "${swApiObject.id}"
+            holder.nameView.text = swApiObject.name ?: ""
 
             // TODO 9: S05M02-9 bind data to new views
+            holder.categoryView.text = swApiObject.category
+            holder.imageView.setImageDrawable(
+                holder.imageView.context.getDrawable(
+                    DrawableResolver.getDrawableId(swApiObject.category, swApiObject.id)
+                )
+            )
 
             with(holder.itemView) {
                 tag = swApiObject
