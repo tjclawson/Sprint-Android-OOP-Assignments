@@ -1,5 +1,6 @@
 package com.example.interfaces
 
+import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -59,6 +60,24 @@ class ItemDetailFragment : Fragment() {
         }
 
         return rootView
+    }
+
+    interface FragmentResponse {
+        fun doSomething(something: String)
+    }
+
+    private var something: FragmentResponse? = null
+
+    override fun onAttach(context: Context?) {
+        super.onAttach(context)
+        if(context is FragmentResponse) {
+            something = context
+        }
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        something = null
     }
 
     companion object {

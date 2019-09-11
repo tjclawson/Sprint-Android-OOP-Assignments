@@ -17,6 +17,8 @@ import kotlinx.android.synthetic.main.activity_item_detail.*
  */
 class ItemDetailActivity : AppCompatActivity(), ItemDetailFragment.DetailResponse {
 
+    // TODO 15: Implement the Fragment interface
+
     override fun provideInfoForObject(info: String) {
         Toast.makeText(this, "We got info from detail:\n$info", Toast.LENGTH_LONG).show()
     }
@@ -80,5 +82,4 @@ class ItemDetailActivity : AppCompatActivity(), ItemDetailFragment.DetailRespons
             else -> super.onOptionsItemSelected(item)
         }
 
-    // TODO 15: Implement the Fragment interface
 }
