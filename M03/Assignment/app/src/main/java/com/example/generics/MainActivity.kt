@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity() {
         observable.subscribe() {int -> println(int)}
 
         //Task 8
-        class Actor(val name: String)
+        data class Actor(val name: String)
         val actorObservable = Observable.just(Actor("Tom Cruise"), Actor("Brad Pitt"))
         actorObservable.subscribe() {actor -> println("Actor: $actor")}
 
@@ -74,7 +74,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
     data class Movie(val title: String, val language: String, val releaseDate: String, val rating: String)
 }
 
